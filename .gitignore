@@ -1,2 +1,37 @@
 venv
 .env
+logs
+# Virtual Environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# VS Code settings
+.vscode/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+
+# Compiled Python files
+*.py[cod]
+*$py.class
+
+# Log files and log folders
+logs/
+**/logs/
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Distribution / Build files
+build/
+dist/
+*.egg-info/
+
+# OS generated files
+.DS_Store
+Thumbs.db
