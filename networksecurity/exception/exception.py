@@ -6,7 +6,7 @@ from networksecurity.logging import logger
 
 
 # Create a custom exception class by inheriting from Python's built-in Exception class
-class NetworkSecurityException(Exception):
+class CustomException(Exception):
 
     # Constructor of the custom exception class
     # error_message -> Original exception message
@@ -57,4 +57,4 @@ if __name__=='__main__':
         # Raise our custom exception and pass:
         # e   -> original exception
         # sys -> used to extract traceback details
-        raise NetworkSecurityException(e,sys)
+        raise CustomException(e,sys)
