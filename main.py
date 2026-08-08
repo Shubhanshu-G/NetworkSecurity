@@ -4,7 +4,7 @@ from networksecurity.logging.logger import logging
 
 from networksecurity.entity.config_entity import DataIngestionConfig,TrainingPipelineConfig
 import os
-
+import sys
 if __name__=='__main__':
     try:
         trainingpipelineconfig=TrainingPipelineConfig()

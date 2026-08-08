@@ -105,6 +105,9 @@ class DataIngestion:
                 training_file_path=self.data_ingestion_config.training_file_path,
                 testing_file_path=self.data_ingestion_config.testing_file_path
             )
+            logging.info(f"Training CSV: {self.data_ingestion_config.training_file_path}")
+            logging.info(f"Testing CSV: {self.data_ingestion_config.testing_file_path}")
+            logging.info(f"Feature Store CSV: {self.data_ingestion_config.feature_store_file_path}")
             logging.info(f"Data ingestion completed successfully.")
             return dataingestionartifact
         except Exception as e:
