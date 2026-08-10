@@ -36,6 +36,11 @@ class DataIngestion:
             logging.info(f"Exporting collection: {collection_name} from database: {database_name}")
 
             df = pd.DataFrame(list(collection.find()))
+            print("================================")
+            print("Database:", database_name)
+            print("Collection:", collection_name)
+            print("Records:", len(df))
+            print("================================")
             if "_id" in df.columns:
                 df = df.drop(columns=["_id"], axis=1)
 
