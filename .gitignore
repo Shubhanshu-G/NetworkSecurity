@@ -10,7 +10,12 @@ venv/
 
 # VS Code settings
 .vscode/
-
+ # Python artifacts
+ Artifacts/
+ **/Artifacts/
+ *.Artifacts
+ articats
+ 
 # Python cache
 __pycache__/
 **/__pycache__/
