@@ -1,28 +1,32 @@
-venv
-.env
-logs
 # Virtual Environment
 venv/
 .venv/
+**/venv/
+**/.venv/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # VS Code settings
 .vscode/
- # Python artifacts
- Artifacts/
- **/Artifacts/
- *.Artifacts
- articats
- 
-# Python cache
+
+# Python artifacts
 __pycache__/
 **/__pycache__/
-
-# Compiled Python files
 *.py[cod]
 *$py.class
+
+# Generated artifacts
+Artifacts/
+**/Artifacts/
+articats/
+**/articats/
+
+# Final trained model
+final_model/
+**/final_model/
 
 # Log files and log folders
 logs/
@@ -31,11 +35,15 @@ logs/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+**/.ipynb_checkpoints/
 
 # Distribution / Build files
 build/
+**/build/
 dist/
+**/dist/
 *.egg-info/
+**/*.egg-info/
 
 # OS generated files
 .DS_Store
