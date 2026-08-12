@@ -32,6 +32,12 @@ from sklearn.ensemble import (
 )
 from sklearn.model_selection import GridSearchCV
 
+import mlflow
+from urllib.parse import urlparse
+
+
+import dagshub
+dagshub.init(repo_owner='Shubhanshu-G', repo_name='NetworkSecurity', mlflow=True)
 
 class ModelTrainer:
     def __init__(self, model_trainer_config: ModelTrainerConfig, data_transformation_artifact: DataTransformationArtifact):
@@ -53,6 +59,8 @@ class ModelTrainer:
             mlflow.log_metric("precision",precision_score)
             mlflow.log_metric("recall_score",recall_score)
             mlflow.sklearn.log_model(best_model,"model")
+            mlflow.autolog()
+
 
     def train_model(self,X_train,y_train,X_test,y_test):
         models = {

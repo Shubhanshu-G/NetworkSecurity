@@ -12,8 +12,7 @@ from networksecurity.entity.artifact_entity import (
 from networksecurity.components.model_trainer import ModelTrainer
 from networksecurity.entity.config_entity import ModelTrainerConfig
 from networksecurity.components.data_transformation import DataTransformation
-import dagshub
-dagshub.init(repo_owner='Shubhanshu-G', repo_name='NetworkSecurity', mlflow=True)
+
 
 import os
 import sys
