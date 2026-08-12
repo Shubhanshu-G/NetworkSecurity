@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.impute import KNNImputer
 from sklearn.pipeline import Pipeline
 
+import mlflow
+from urllib.parse import urlparse
 from networksecurity.constant.training_pipeline import SAVED_MODEL_DIR,MODEL_FILE_NAME
 from networksecurity.entity.artifact_entity import (
     DataTransformationArtifact,
@@ -38,6 +40,19 @@ class ModelTrainer:
             self.data_transformation_artifact = data_transformation_artifact
         except Exception as e:
             raise CustomException(e, sys)
+
+    def track_mlflow(self,best_model,classificationmetric):
+        with mlflow.start_run():
+            f1_score=classificationmetric.f1_score
+            precision_score=classificationmetric.precision_score
+            recall_score=classificationmetric.recall_score
+
+            
+
+            mlflow.log_metric("f1_score",f1_score)
+            mlflow.log_metric("precision",precision_score)
+            mlflow.log_metric("recall_score",recall_score)
+            mlflow.sklearn.log_model(best_model,"model")
 
     def train_model(self,X_train,y_train,X_test,y_test):
         models = {
@@ -87,8 +102,12 @@ class ModelTrainer:
         # print(f"Best Model: {best_model_name}")
         # print(f"Best Model R2 Score: {best_model_score}")
 
+      
         y_train_pred = best_model.predict(X_train)
         classification_train_metric = get_classification_score(y_true = y_train,y_pred = y_train_pred)
+        ### Ml Flow 
+        self.track_mlflow(best_model,classification_train_metric)
+        
         y_test_pred = best_model.predict(X_test)
         classification_test_matric = get_classification_score(y_true = y_test,y_pred = y_test_pred)
 
