@@ -9,4 +9,6 @@ dill
 PyYAML
 mlflow
 dagshub
+fastapi
+uvicorn
 # -e .
