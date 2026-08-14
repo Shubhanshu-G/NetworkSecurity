@@ -1,163 +1,194 @@
-# Network Security Phishing Detection
+# Network Security — Phishing Detection ML Pipeline
 
-This is an end-to-end Machine Learning project designed to identify and classify phishing websites. It implements a complete data pipeline from ingestion to validation, transformation, and model training.
+An end-to-end machine learning pipeline that detects phishing/malicious network activity. The project covers the full ML lifecycle — data ingestion from MongoDB, validation, transformation, model training with MLflow (tracked via DagsHub), and deployment via a FastAPI web app — containerized with Docker.
 
-## Project Overview
+**Repo:** [Shubhanshu-G/NetworkSecurity](https://github.com/Shubhanshu-G/NetworkSecurity)
 
-The project is structured as a pipeline to predict whether a website is legitimate or a phishing attempt based on various network and website characteristics. The project automates the entire machine learning lifecycle, making it scalable and robust.
+## Features
 
-### Pipeline Stages
+- **Data Ingestion** — Pulls raw network/phishing data from MongoDB Atlas
+- **Data Validation** — Validates incoming data against a defined schema (`data_schema/schema.yaml`)
+- **Data Transformation** — Cleans and transforms data for model training
+- **Model Training** — Trains a classification model with experiment tracking via MLflow, remotely logged to DagsHub
+- **Prediction Service** — Serves predictions through a FastAPI web interface
+- **Custom Logging & Exception Handling** — Centralized logging and exception modules for easier debugging
+- **Dockerized** — Dockerfile is complete; image build/deployment (e.g. to a registry/cloud) is still pending
 
-1. **Data Ingestion**
-   - Retrieves raw network security and phishing data from a MongoDB database.
-   - Splits the dataset into training and testing sets.
-   - Saves the split datasets to the artifacts directory.
+## Project Flow
 
-2. **Data Validation**
-   - Validates the incoming datasets against a predefined schema.yaml to ensure correct data types and columns.
-   - Computes and checks for data drift between training and testing sets, generating a report.yaml.
+```mermaid
+flowchart TD
+    A[MongoDB Atlas<br/>Raw Data] -->|mongoDB_push_data.py| B[Data Ingestion]
+    B --> C[Data Validation<br/>against schema.yaml]
+    C -->|valid data| D[Data Transformation]
+    C -->|invalid data| X[Rejected/Logged]
+    D --> E[Model Trainer]
+    E -->|logs metrics & params| F[MLflow<br/>tracked via DagsHub]
+    E --> G[final_model/<br/>trained artifact]
+    G --> H[FastAPI App<br/>app.py]
+    H --> I[Prediction Output<br/>prediction_output/output.csv]
+    H --> J[Web UI<br/>templates/table.html]
+```
 
-3. **Data Transformation**
-   - Handles missing values using a K-Nearest Neighbors (KNN) Imputer.
-   - Preprocesses and scales features for the machine learning models.
-   - Saves the transformation object as a pickle file and the transformed data as numpy arrays.
+## Project Structure
 
-4. **Model Training**
-   - Trains classification models on the transformed training dataset.
-   - Evaluates performance against target metrics and checks for overfitting/underfitting.
-   - Saves the final model as a pickle file.
-
----
-
-## Directory Structure
-
-```text
+```
 NetworkSecurity/
 ├── data_schema/
-│   └── schema.yaml
+│   └── schema.yaml                    # Schema used to validate incoming data
 ├── Network_Data/
-│   └── phisingData.csv
-├── networksecurity/
-│   ├── components/
-│   │   ├── __init__.py
+│   └── phisingData.csv                # Raw source dataset
+├── networksecurity/                   # Core Python package
+│   ├── cloud/                         # Cloud integration utilities
+│   ├── components/                    # Pipeline stages
 │   │   ├── data_ingestion.py
-│   │   ├── data_validation.py
 │   │   ├── data_transformation.py
+│   │   ├── data_validation.py
 │   │   └── model_trainer.py
 │   ├── constant/
-│   │   └── training_pipeline/
-│   │       └── __init__.py
+│   │   └── training_pipeline/         # Pipeline-wide constants/config values
 │   ├── entity/
-│   │   ├── artifact_entity.py
-│   │   └── config_entity.py
+│   │   ├── artifact_entity.py         # Data classes for pipeline artifacts
+│   │   └── config_entity.py           # Data classes for pipeline configs
 │   ├── exception/
-│   │   └── exception.py
+│   │   └── exception.py               # Custom exception handling
 │   ├── logging/
-│   │   └── logger.py
+│   │   └── logger.py                  # Custom logger setup
 │   ├── pipeline/
-│   │   └── __init__.py
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── main_utils/
-│   │   │   └── utils.py
-│   │   └── ml_utils/
-│   └── __init__.py
-├── main.py
-├── mongoDB_push_data.py
-├── setup.py
-├── requirements.txt
-└── .env
+│   │   └── training_pipeline.py       # Orchestrates the full training pipeline
+│   └── utils/
+│       ├── main_utils/
+│       │   └── utils.py               # General helper functions
+│       └── ml_utils/
+│           ├── metric/
+│           │   └── classification_metric.py  # Model evaluation metrics
+│           └── model/
+│               └── estimator.py       # Model wrapper/estimator class
+├── prediction_output/
+│   └── output.csv                     # Saved prediction results
+├── templates/
+│   └── table.html                     # HTML template for the web app
+├── valid_data/
+│   └── test.csv                       # Validated test dataset
+├── app.py                             # Web app entry point (serves predictions)
+├── main.py                            # Training pipeline entry point
+├── mongoDB_push_data.py               # Script to push data into MongoDB
+├── test_mongoDB.py                    # Script to test MongoDB connectivity
+├── mlflow.db                          # MLflow experiment tracking database
+├── Dockerfile                         # Container build definition
+├── requirements.txt                   # Python dependencies
+├── setup.py                           # Package setup script
+└── .env                               # Environment variables (not committed)
 ```
 
-## Project Workflow and Data Flow
+## Environment Variables (`.env`)
 
-```text
-+-----------------------+
-|     Network_Data/     |
-|   phisingData.csv     |
-+-----------+-----------+
-            |
-            | (mongoDB_push_data.py)
-            v
-+-----------------------+
-|     MongoDB Atlas     |
-|   (Database/Table)    |
-+-----------+-----------+
-            |
-            | (Data Ingestion)
-            v
-+-----------------------+
-|     Data Ingestion    | ---> Splitted Train / Test Data
-+-----------+-----------+
-            |
-            | (Data Validation)
-            v
-+-----------------------+
-|    Data Validation    | ---> Drift Analysis & Schema Validation
-+-----------+-----------+
-            |
-            | (Data Transformation)
-            v
-+-----------------------+
-|  Data Transformation  | ---> KNN Imputation, Scaling & Preprocessing
-+-----------+-----------+
-            |
-            | (Model Trainer)
-            v
-+-----------------------+
-|     Model Trainer     | ---> Evaluated Model Artifact (model.pkl)
-+-----------------------+
+```dotenv
+MONGO_DB_URL="<your-mongodb-atlas-connection-string>"
+DAGSHUB_URL="https://dagshub.com/Shubhanshu-G/NetworkSecurity.mlflow"
 ```
 
----
+> **MongoDB Atlas note:** If you get a connection timeout/refused error, go to your MongoDB Atlas dashboard → **Network Access** → **Add IP Address**, and whitelist your current machine's IP (or `0.0.0.0/0` for testing/development only — not recommended for production).
 
-## Installation and Setup
+## Prerequisites
 
-### Prerequisites
+- Python 3.8+
+- MongoDB instance (local or Atlas)
+- Docker (optional, for containerized deployment)
 
-- Python 3.8 or above
-- A running MongoDB instance (local or Atlas)
+## Setup
 
-### Steps
+1. **Clone the repository**
 
-1. **Clone the repository and navigate to the project directory:**
    ```bash
+   git clone https://github.com/Shubhanshu-G/NetworkSecurity.git
    cd NetworkSecurity
    ```
 
-2. **Create a virtual environment:**
+2. **Create and activate a virtual environment**
+
    ```bash
    python -m venv venv
-   source venv/Scripts/activate  # On Windows: venv\Scripts\activate
+   venv\Scripts\activate      # Windows
+   source venv/bin/activate   # macOS/Linux
    ```
 
-3. **Install the package and dependencies:**
+3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables:**
-   Create a `.env` file in the root directory and add your MongoDB connection string (replacing `<username>` and `<password>` with your actual MongoDB Atlas database credentials):
-   ```env
-   MONGO_DB_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/?retryWrites=true&w=majority
-   ```
-   
-   > [!IMPORTANT]
-   > Do not commit the `.env` file to your GitHub repository. The `.gitignore` file is configured to exclude `.env` to prevent sensitive database credentials from being pushed to public repositories.
+4. **Configure environment variables**
+   Create a `.env` file in the project root (see [Environment Variables](#environment-variables-env) above), and make sure your IP is whitelisted on MongoDB Atlas.
 
+5. **Push data to MongoDB** (first-time setup)
 
----
-
-## How to Run
-
-1. **Extract and Push Data to MongoDB:**
-   Run the following script to load the raw CSV data into your MongoDB database:
    ```bash
    python mongoDB_push_data.py
    ```
 
-2. **Run the Training Pipeline:**
-   Execute the entire end-to-end pipeline (Data Ingestion, Validation, Transformation, and Model Training):
-   ```bash
-   python main.py
-   ```
+## Usage
+
+### Run the training pipeline
+
+```bash
+python main.py
+```
+
+This runs data ingestion → validation → transformation → model training, and logs experiments to MLflow.
+
+### View MLflow experiment tracking
+
+Experiments are tracked remotely via DagsHub. View them at:
+[https://dagshub.com/Shubhanshu-G/NetworkSecurity.mlflow](https://dagshub.com/Shubhanshu-G/NetworkSecurity.mlflow)
+
+To view local runs instead:
+
+```bash
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+Then open `http://localhost:5000` in your browser.
+
+### Run the web app (predictions)
+
+```bash
+python app.py
+```
+
+This starts the FastAPI server. Visit `http://localhost:8000/docs` for the interactive Swagger UI.
+
+### Run with Docker
+>
+> **Status:** Dockerfile is complete and ready to use. Image build/push to a registry and cloud deployment are still pending.
+
+```bash
+docker build -t networksecurity .
+docker run -p 8000:8000 --env-file .env networksecurity
+```
+
+## Testing
+
+```bash
+python test_mongoDB.py
+```
+
+## Tech Stack
+
+- **Language:** Python
+- **Database:** MongoDB Atlas
+- **Experiment Tracking:** MLflow, hosted on DagsHub
+- **Web Framework:** FastAPI
+- **Containerization:** Docker (build complete, deployment pending)
+
+## Notes
+
+- `Network_Data/phisingData.csv` is the raw dataset; validated data used for testing is stored under `valid_data/`.
+- Prediction results are written to `prediction_output/output.csv`.
+- Sensitive config (`.env`) is excluded from version control — see `.gitignore`.
+- Docker image build and cloud deployment are in progress — this section will be updated once complete.
+
+---
+
+*Feel free to update the sections above (tech stack, app framework, exact commands) if any assumptions don't match your actual implementation.*
