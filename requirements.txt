@@ -2,7 +2,6 @@ python-dotenv
 pandas
 numpy
 pymongo[srv]==4.17
-pymongo
 certifi
 scikit-learn
 dill
@@ -11,4 +10,4 @@ mlflow
 dagshub
 fastapi
 uvicorn
-python-multipart==0.x.x
+python-multipart
