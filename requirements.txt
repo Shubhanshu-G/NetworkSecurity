@@ -1,10 +1,7 @@
 python-dotenv
-pandas
-numpy
+
 pymongo[srv]==4.17
-certifi
 scikit-learn
-dill
 PyYAML
 mlflow
 dagshub
