@@ -3,6 +3,8 @@
 An end-to-end machine learning pipeline that detects phishing/malicious network activity. The project covers the full ML lifecycle — data ingestion from MongoDB, validation, transformation, model training with MLflow (tracked via DagsHub), and deployment via a FastAPI web app — containerized with Docker.
 
 **Repo:** [Shubhanshu-G/NetworkSecurity](https://github.com/Shubhanshu-G/NetworkSecurity)
+**Live API:** [network-security-maxlkyajr-shubhanshu3.vercel.app/docs](https://network-security-maxlkyajr-shubhanshu3.vercel.app/docs)
+**Docker Image:** [dropper135/networksecurity](https://hub.docker.com/repository/docker/dropper135/networksecurity/general)
 
 ## Features
 
@@ -10,9 +12,9 @@ An end-to-end machine learning pipeline that detects phishing/malicious network 
 - **Data Validation** — Validates incoming data against a defined schema (`data_schema/schema.yaml`)
 - **Data Transformation** — Cleans and transforms data for model training
 - **Model Training** — Trains a classification model with experiment tracking via MLflow, remotely logged to DagsHub
-- **Prediction Service** — Serves predictions through a FastAPI web interface
+- **Prediction Service** — Serves predictions through a FastAPI web interface, **live on Vercel**
 - **Custom Logging & Exception Handling** — Centralized logging and exception modules for easier debugging
-- **Dockerized** — Dockerfile is complete; image build/deployment (e.g. to a registry/cloud) is still pending
+- **Dockerized** — Dockerfile is complete; used for local/consistent runs (Vercel is the current live deployment)
 
 ## Project Flow
 
@@ -76,7 +78,8 @@ NetworkSecurity/
 ├── test_mongoDB.py                    # Script to test MongoDB connectivity
 ├── mlflow.db                          # MLflow experiment tracking database
 ├── Dockerfile                         # Container build definition
-├── requirements.txt                   # Python dependencies
+├── requirements.txt                   # Python dependencies (app/serving)
+├── requirements-training.txt          # Python dependencies (model training only)
 ├── setup.py                           # Package setup script
 └── .env                               # Environment variables (not committed)
 ```
@@ -115,8 +118,16 @@ DAGSHUB_URL="https://dagshub.com/Shubhanshu-G/NetworkSecurity.mlflow"
 
 3. **Install dependencies**
 
+   For running/serving the app:
+
    ```bash
    pip install -r requirements.txt
+   ```
+
+   For training the model (includes extra ML/training-only libraries):
+
+   ```bash
+   pip install -r requirements-training.txt
    ```
 
 4. **Configure environment variables**
@@ -159,14 +170,28 @@ python app.py
 
 This starts the FastAPI server. Visit `http://localhost:8000/docs` for the interactive Swagger UI.
 
-### Run with Docker
->
-> **Status:** Dockerfile is complete and ready to use. Image build/push to a registry and cloud deployment are still pending.
+### Live Deployment
+
+The API is deployed and live on Vercel:
+[https://network-security-maxlkyajr-shubhanshu3.vercel.app/docs](https://network-security-maxlkyajr-shubhanshu3.vercel.app/docs)
+
+### Run with Docker (optional, for local containerized runs)
+
+**Option A — Pull the pre-built image from Docker Hub:**
+
+```bash
+docker pull dropper135/networksecurity:latest
+docker run -p 8000:8000 --env-file .env dropper135/networksecurity:latest
+```
+
+**Option B — Build it yourself from source:**
 
 ```bash
 docker build -t networksecurity .
 docker run -p 8000:8000 --env-file .env networksecurity
 ```
+
+Either way, visit `http://localhost:8000/docs` once the container is running.
 
 ## Testing
 
@@ -180,14 +205,15 @@ python test_mongoDB.py
 - **Database:** MongoDB Atlas
 - **Experiment Tracking:** MLflow, hosted on DagsHub
 - **Web Framework:** FastAPI
-- **Containerization:** Docker (build complete, deployment pending)
+- **Deployment:** Vercel
+- **Containerization:** Docker — image published on [Docker Hub](https://hub.docker.com/repository/docker/dropper135/networksecurity/general)
 
 ## Notes
 
 - `Network_Data/phisingData.csv` is the raw dataset; validated data used for testing is stored under `valid_data/`.
 - Prediction results are written to `prediction_output/output.csv`.
 - Sensitive config (`.env`) is excluded from version control — see `.gitignore`.
-- Docker image build and cloud deployment are in progress — this section will be updated once complete.
+- The app is live and publicly testable via the Vercel `/docs` link above.
 
 ---
 
