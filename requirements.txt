@@ -3,8 +3,7 @@ python-dotenv
 pymongo[srv]==4.17
 scikit-learn
 PyYAML
-mlflow
-dagshub
+
 fastapi
 uvicorn
 python-multipart
