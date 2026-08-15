@@ -81,7 +81,11 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
         network_model = NetworkModel(preprocessor=preprocesor, model=final_model)
         y_pred = network_model.predict(df)
         df['predicted_column'] = y_pred
-        df.to_csv('prediction_output/output.csv')
+        # NOTE: removed df.to_csv('prediction_output/output.csv') —
+        # Vercel's filesystem is read-only outside /tmp, so writing here
+        # crashes /predict with a 500. If you need to persist output,
+        # write to /tmp instead (non-persistent) or push results to
+        # MongoDB/S3/etc. This isn't needed to render the table below.
         table_html = df.to_html(classes='table table-striped')
         return templates.TemplateResponse(
             request=request,
